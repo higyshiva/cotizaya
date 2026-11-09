@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CotizaYa · Cotizaciones y facturas para freelancers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceff3;--panel:#fff;--ink:#16212c;--muted:#5d6b79;--line:#d5dbe2;--accent:#3846c4;--on-accent:#fff;--warn:#a4400b;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151b;--panel:#1a222b;--ink:#e8edf2;--muted:#9aa8b6;--line:#2e3a46;--accent:#8c98ff;--on-accent:#10151b;--warn:#f0a56b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10151b;--panel:#1a222b;--ink:#e8edf2;--muted:#9aa8b6;--line:#2e3a46;--accent:#8c98ff;--on-accent:#10151b;--warn:#f0a56b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:1.5rem;font-weight:600;margin:0;letter-spacing:-.01em}
+.plan{display:flex;align-items:center;gap:10px;font-size:.875rem;color:var(--muted)}
+.plan b{color:var(--ink)}
+.grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:860px){.grid{grid-template-columns:380px 1fr;align-items:start}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+label{display:block;font-size:.8125rem;color:var(--muted);margin:12px 0 4px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:6px;padding:9px 10px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{display:grid;grid-template-columns:1fr 56px 78px 32px;gap:6px;margin-bottom:6px}
+.item input{padding:8px 6px}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:9px 12px}
+button.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600;width:100%;padding:12px;margin-top:16px}
+button.link{border:0;color:var(--accent);padding:6px 0;margin-top:4px}
+.x{padding:0;color:var(--muted)}
+.paper{background:#fff;color:#111;border-radius:4px;padding:28px 24px;box-shadow:0 1px 3px rgba(0,0,0,.18),0 10px 30px rgba(0,0,0,.12);min-height:420px;font-size:.9375rem}
+.paper h2{margin:0;font-size:1.75rem;font-weight:600;letter-spacing:-.02em}
+.paper .meta{color:#555;font-size:.8125rem;margin-top:2px}
+.paper .parties{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+.paper .parties small{display:block;color:#666;font-size:.75rem}
+.paper table{width:100%;border-collapse:collapse}
+.paper th{text-align:left;font-weight:500;font-size:.75rem;color:#666;border-bottom:2px solid #111;padding:6px 0}
+.paper td{padding:8px 0;border-bottom:1px solid #ddd;vertical-align:top}
+.paper .n{text-align:right;white-space:nowrap}
+.paper .tot{margin:16px 0 0 auto;width:min(260px,100%)}
+.paper .tot div{display:flex;justify-content:space-between;padding:3px 0}
+.paper .tot .big{font-size:1.25rem;font-weight:600;border-top:2px solid #111;margin-top:6px;padding-top:8px}
+.paper .notes{margin-top:24px;color:#444;font-size:.8125rem;white-space:pre-wrap}
+.scroll{overflow-x:auto}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal.on{display:flex}
+.modal .panel{max-width:400px}
+.modal h3{margin:0 0 8px;font-size:1.25rem}
+.modal ul{padding-left:18px;margin:8px 0 12px}
+.warn{color:var(--warn)}
+@media print{body{background:#fff}.no-print{display:none!important}.wrap{padding:0;max-width:none}.grid{display:block}.paper{box-shadow:none;padding:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="no-print">
+    <h1>CotizaYa</h1>
+    <div class="plan"><span id="plan"></span><button id="pro" type="button">Pasar a Pro</button></div>
+  </header>
+  <div class="grid">
+    <section class="panel no-print" aria-label="Datos del documento">
+      <div class="row">
+        <div><label for="tipo">Documento</label><select id="tipo"><option>Cotización</option><option>Factura</option></select></div>
+        <div><label for="num">Número</label><input id="num" value="0001"></div>
+      </div>
+      <div class="row">
+        <div><label for="fecha">Fecha</label><input id="fecha" type="date"></div>
+        <div><label for="mon">Moneda</label><input id="mon" value="$" maxlength="4"></div>
+      </div>
+      <label for="yo">Tu nombre o negocio</label><input id="yo" value="Lucía Ramos, diseñadora">
+      <label for="cli">Cliente</label><input id="cli" value="Café Brújula">
+      <label>Servicios (descripción, cant., precio)</label>
+      <div id="items"></div>
+      <button class="link" id="add" type="button">Agregar servicio</button>
+      <div class="row">
+        <div><label for="iva">Impuesto (%)</label><input id="iva" type="number" min="0" step="0.5" value="16"></div>
+        <div><label for="val">Válido por (días)</label><input id="val" type="number" min="0" value="15"></div>
+      </div>
+      <label for="notas">Notas</label><textarea id="notas" rows="3">Se requiere 50% de anticipo para iniciar.</textarea>
+      <button class="primary" id="gen" type="button">Descargar PDF</button>
+      <p class="warn" id="msg" role="status" style="margin:8px 0 0;font-size:.8125rem"></p>
+    </section>
+    <div class="scroll"><article class="paper" id="paper" aria-label="Vista previa"></article></div>
+  </div>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="panel">
+    <h3 id="mt">CotizaYa Pro</h3>
+    <ul><li>Documentos ilimitados</li><li>Tu logo en cada PDF</li><li>Clientes y cotizaciones guardados</li></ul>
+    <p style="color:var(--muted);font-size:.875rem;margin:0 0 12px">Cancela cuando quieras desde el mismo botón.</p>
+    <button type="button" id="sub" class="primary" style="margin-top:0">Suscribirme</button>
+    <button type="button" id="close" class="link" style="width:100%">Ahora no</button>
+  </div>
+</div>
+
+<script>
+var LIM=3, PRO=false, $=function(s){return document.querySelector(s)};
+var items=[{d:'Diseño de identidad visual',q:1,p:4500},{d:'Menú impreso (2 páginas)',q:1,p:1800}];
+function mk(){var n=new Date();return 'cotizaya-'+n.getFullYear()+'-'+(n.getMonth()+1)}
+function used(){try{return +localStorage.getItem(mk())||0}catch(e){return 0}}
+function bump(){try{localStorage.setItem(mk(),used()+1)}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function money(n){return $('#mon').value+' '+n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function plan(){if(PRO){$('#plan').innerHTML='Plan <b>Pro</b>: documentos ilimitados';return}var l=Math.max(0,LIM-used());$('#plan').innerHTML='Plan gratis: <b>'+l+' de '+LIM+'</b> documentos este mes'}
+function rows(){
+  var h='';
+  items.forEach(function(it,i){h+='<div class="item"><input data-i="'+i+'" data-k="d" value="'+esc(it.d)+'" aria-label="Descripción"><input data-i="'+i+'" data-k="q" type="number" min="0" value="'+it.q+'" aria-label="Cantidad"><input data-i="'+i+'" data-k="p" type="number" min="0" value="'+it.p+'" aria-label="Precio"><button class="x" type="button" data-del="'+i+'" aria-label="Quitar servicio">✕</button></div>'});
+  $('#items').innerHTML=h;
+}
+function draw(){
+  var sub=0,body='';
+  items.forEach(function(it){var t=(+it.q||0)*(+it.p||0);sub+=t;body+='<tr><td>'+esc(it.d)+'</td><td class="n">'+(+it.q||0)+'</td><td class="n">'+money(+it.p||0)+'</td><td class="n">'+money(t)+'</td></tr>'});
+  var rate=+$('#iva').value||0, tax=sub*rate/100, tipo=$('#tipo').value, f=$('#fecha').value;
+  var fd=f?new Date(f+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}):'';
+  var val=+$('#val').value||0;
+  $('#paper').innerHTML='<h2>'+esc(tipo)+' '+esc($('#num').value)+'</h2><div class="meta">'+esc(fd)+(tipo==='Cotización'&&val?' · válida por '+val+' días':'')+'</div>'
+  +'<div class="parties"><div><small>De</small>'+esc($('#yo').value)+'</div><div><small>Para</small>'+esc($('#cli').value)+'</div></div>'
+  +'<table><thead><tr><th>Servicio</th><th class="n">Cant.</th><th class="n">Precio</th><th class="n">Importe</th></tr></thead><tbody>'+body+'</tbody></table>'
+  +'<div class="tot"><div><span>Subtotal</span><span>'+money(sub)+'</span></div><div><span>Impuesto ('+rate+'%)</span><span>'+money(tax)+'</span></div><div class="big"><span>Total</span><span>'+money(sub+tax)+'</span></div></div>'
+  +'<div class="notes">'+esc($('#notas').value)+'</div>';
+}
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.dataset&&t.dataset.i!==undefined){items[+t.dataset.i][t.dataset.k]=t.dataset.k==='d'?t.value:(+t.value||0)}
+  draw();
+});
+document.addEventListener('change',draw);
+document.addEventListener('click',function(e){
+  var t=e.target;
+  if(t.dataset&&t.dataset.del!==undefined){items.splice(+t.dataset.del,1);rows();draw()}
+});
+$('#add').onclick=function(){items.push({d:'',q:1,p:0});rows();draw()};
+function go(path){fetch(path,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.url){location.href=d.url}else{$('#msg').textContent='No se pudo abrir el pago. Intenta de nuevo.'}}).catch(function(){$('#msg').textContent='No se pudo abrir el pago. Intenta de nuevo.'})}
+$('#pro').onclick=function(){if(PRO){go('/api/portal')}else{$('#modal').classList.add('on')}};
+$('#sub').onclick=function(){go('/api/checkout')};
+$('#close').onclick=function(){$('#modal').classList.remove('on')};
+$('#gen').onclick=function(){
+  if(!PRO&&used()>=LIM){$('#msg').textContent='Llegaste al límite gratis de este mes. Pasa a Pro para seguir.';$('#modal').classList.add('on');return}
+  $('#msg').textContent='';if(!PRO)bump();plan();draw();
+  try{window.print()}catch(e){$('#msg').textContent='Usa la opción Imprimir de tu navegador y elige Guardar como PDF.'}
+};
+$('#fecha').value=new Date().toISOString().slice(0,10);
+rows();draw();plan();
+fetch('/api/status').then(function(r){return r.json()}).then(function(d){PRO=!!d.pro;plan();$('#pro').textContent=PRO?'Gestionar suscripción':'Pasar a Pro'}).catch(function(){});
+</script>
+</body>
+</html>
